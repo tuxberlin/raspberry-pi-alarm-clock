@@ -1,2 +1,3 @@
 # raspberry-pi-alarm-clock
-A small project to transform a Raspberry Pi into an alarm clock with music and display.
+
+see the instructions.md for a guide on how to setup our pi step by step.
