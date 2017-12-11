@@ -75,7 +75,7 @@ Select your keymap.
 Main Menu > _4 Localisation Options_ >  _I4 Change Wi-fi Country_  
 Select your country.
 
-<Finish> the Config dialog and reboot the Pi.
+&lt;Finish> the Config dialog and reboot the Pi.
 
 ```
 $ sudo reboot
@@ -94,15 +94,15 @@ It should print out all WiFi Accesspoints in your area. If not, troubleshoot fir
 
 Setup WiFi.
 ```
-$ wpa_passphrase "YOUR-WIFI-NAME" "PASSWORD-FOR-WIFI" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf
-$ sudo wpa_cli -i wlan0 reconfigure
+$ sudo raspi-config
 ```
+
+Select _2 Network Options_ > _N2 Wi-fi_  
+Enter your WiFi name and password.
 
 Try connection.
 
 ```
-$ sudo dhclient -r
-$ sudo dhclient wlan0
 $ ping google.de
 ```
 
@@ -139,71 +139,69 @@ Things you should do in the config dialog:
 - 8 Update
 - 1 Change user password
 - 2 Network Options > N1 Hostname _(give your pi a name)_
+- 2 Network Options > N3 Network interface names _(enable predictable interface names)_
+- 5 Interfacing Options > P2 SSH _(enable SSH Server)_
+- 6 Overclock _(Select Turbo 1000MHz)_
 
+&lt;Finish> the dialog and reboot the Pi.
 
-update raspi-config
-[extend file system → reboot] // newer versions: automatically done on first boot
-locale
-keyboard
-timezone
-wifi-country
-boot options
-ssh
-password
-[hostname, MemorySplit, overclock]
-
-
-
-
-
-
-
-
-TODO: installation / first steps on raspbian (raspberry-config, apt-get dist-upgrade, ...)
-
-Setup WiFi.
-
+```
+$ sudo reboot
+```
 
 Install vim.
-```bash
+
+```
 $ sudo apt-get install vim
+$ echo "set mouse-=a" >> ~/.vimrc
+$ echo "syntax on" >> ~/.vimrc
 ```
 
-Install SSH.
-```bash
-TODO: $ raspberry-config
-```
 
-TODO: Select SSH-Server
-
-Setup automatic updates.
-Let it install stable updates and (if necessary) reboot automatically at 3pm. Also it should cleanup after updates.
-```bash
-$ sudo apt-get install unattended-upgrades
-$ dpkg-reconfigure -plow unattended-upgrades
-$ sudo sed -i 's/^\/\/Unattended-Upgrade::Automatic-Reboot "[^"]+";/Unattended-Upgrade::Automatic-Reboot "true";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-$ sudo sed -i 's/^\/\/Unattended-Upgrade::Automatic-Reboot-Time "..:..";/Unattended-Upgrade::Automatic-Reboot-Time "15:00";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-$ sudo sed -i 's/^\/\/Unattended-Upgrade::Remove-Unused-Dependencies "[^"]+";/Unattended-Upgrade::Remove-Unused-Dependencies "true";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-```
-Logfiles will be generated at `/var/log/unattended-upgrades/unattended-upgrades.log`
-
-TODO: Setup ntp
-
-Change the default password to a new one.
-```bash
-$ passwd
-```
+### Connect via SSH
 
 Shutdown the Pi.
-```bash
-$ sudo shutdown -P now
+
+```
+rpi$ sudo shutdown -P now
 ```
 
-Disconnect Display and keyboard. Power on again.
+Disconnect Display and keyboard. Power on the Pi.
 
-Login via SSH from your Computer.
+Test ssh connection. On your computer login via SSH to the Pi
+_(use the name that you chose earlier, e.g. rpi)_. When successful connected, logout again.
 
-Setup SSH-login via keyfile. On your computer lookup your ssh-publickey.
-```bash
-$ cd ~/.ssh
 ```
+yourpc$ ssh pi@rpi
+rpi$ logout
+```
+
+Setup SSH-login via keyfile and test it.
+
+```
+yourpc$ ssh-copy-id -i ~/.ssh/id_rsa.pub pi@rpi
+yourpc$ ssh pi@rpi
+```
+
+Now it should not ask for a password.
+
+
+### Setup automatic updates.
+
+Connect to your Pi via SSH.
+
+Setup automatic updates.
+Let it install stable updates and (if necessary) reboot automatically at 3pm.
+Also it should cleanup after updates.
+
+```
+$ sudo apt-get install unattended-upgrades
+$ sudo dpkg-reconfigure -plow unattended-upgrades
+$ sudo sed -i 's/^\/\/Unattended-Upgrade::Automatic-Reboot "false";/Unattended-Upgrade::Automatic-Reboot "true";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+$ sudo sed -i 's/^\/\/Unattended-Upgrade::Automatic-Reboot-Time "..:..";/Unattended-Upgrade::Automatic-Reboot-Time "15:00";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+$ sudo sed -i 's/^\/\/Unattended-Upgrade::Automatic-Reboot-WithUsers "true";/Unattended-Upgrade::Automatic-Reboot-WithUsers "true";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+$ sudo sed -i 's/^\/\/Unattended-Upgrade::Remove-Unused-Dependencies "false";/Unattended-Upgrade::Remove-Unused-Dependencies "true";/g' /etc/apt/apt.conf.d/50unattended-upgrades
+```
+
+Logfiles will be generated at `/var/log/unattended-upgrades/unattended-upgrades.log`
+
