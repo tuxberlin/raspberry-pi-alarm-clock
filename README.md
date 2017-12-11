@@ -1,3 +1,5 @@
 # raspberry-pi-alarm-clock
 
-see the instructions.md for a guide on how to setup our pi step by step.
+01-basic-rpi-install.md --> instructions to do basic setup of a raspberry pi
+
+02-pi-alarm.md --> instructions to setup the alarm-clock on a pi
