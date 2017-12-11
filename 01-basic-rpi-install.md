@@ -149,6 +149,19 @@ Things you should do in the config dialog:
 $ sudo reboot
 ```
 
+Update Firmware.
+
+```
+$ sudo apt-get install rpi-update
+$ sudo rpi-update
+```
+
+Reboot the Pi.
+
+```
+$ sudo reboot
+```
+
 Install vim.
 
 ```
