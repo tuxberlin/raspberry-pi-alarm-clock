@@ -2,7 +2,7 @@
 
 This guide assumes, that you operate from a Linux (Debian) machine.
 
-## Put Raspbian on SD Card
+## Put Raspbian on SD card
 
 On your computer, download the latest raspian release from https://www.raspberrypi.org/downloads/raspbian/ (~2GB, takes 10-40min).
 
@@ -17,7 +17,7 @@ $ sha256sum -c 2017-11-29-raspbian-stretch.zip.sha256
 $ unzip 2017-11-29-raspbian-stretch.zip
 ``` 
 
-Put the SD Card into your computer and find the device point.  
+Put the SD card into your computer and find the device point.  
 Example:
 ```
 $ lsblk
@@ -38,15 +38,126 @@ mmcblk0     179:0    0  29,5G  0 disk
 └─mmcblk0p1 179:1    0    63M  0 part
 ```
 
-Copy the raspbian image on the SD Card _(replace XXX with your SD-card device, e.g. /dev/mmcblk0)_.
+Copy the raspbian image on the SD card _(replace XXX with your SD card device, e.g. /dev/mmcblk0)_.
 ```
 $ sudo dd if=2017-11-29-raspbian-stretch.img of=/dev/XXX bs=4M conv=fsync
 4919918592 bytes (4,9 GB, 4,6 GiB) copied, 40,6631 s, 121 MB/s
 $ sudo sync
 ```
+On older dd version you will not see any progress, just wait until the command is finished (takes 5-20min).
 
-Remove the SD Card from your computer and put it into the Pi.
+Remove the SD card from your computer and put it into the Pi.
+
+
+## Initial setup of Raspbian
+
 Connect a keyboard, a display and the WiFi-USB-adapter to your Pi and power it on.
+
+The PIXEL desktop will boot. Open a terminal (CTRL+ALT+T).
+
+
+### Localisation
+
+```
+$ sudo raspi-config
+```
+
+Main Menu > _4 Localisation Options_ >  _I1 Change Locale_  
+Mark your locale (e.g. _de_DE-UTF-8 UTF-8_), plus the default one _en_GB.UTF-8 UTF-8_.
+As default select _en_GB.UTF-8 UTF-8_.
+
+Main Menu > _4 Localisation Options_ >  _I2 Change Timezone_  
+Select your timezone.
+
+Main Menu > _4 Localisation Options_ >  _I3 Change Keyboard Layout_  
+Select your keymap.
+
+Main Menu > _4 Localisation Options_ >  _I4 Change Wi-fi Country_  
+Select your country.
+
+<Finish> the Config dialog and reboot the Pi.
+
+```
+$ sudo reboot
+```
+
+
+### Setup WiFi
+
+Check if the WiFi adapter is working.
+
+```
+$ iwlist wlan0 scan | grep SSID
+```
+
+It should print out all WiFi Accesspoints in your area. If not, troubleshoot first before going on.
+
+Setup WiFi.
+```
+$ wpa_passphrase "YOUR-WIFI-NAME" "PASSWORD-FOR-WIFI" | sudo tee -a /etc/wpa_supplicant/wpa_supplicant.conf
+$ sudo wpa_cli -i wlan0 reconfigure
+```
+
+Try connection.
+
+```
+$ sudo dhclient -r
+$ sudo dhclient wlan0
+$ ping google.de
+```
+
+Reboot the Pi.
+
+```
+$ sudo reboot
+```
+
+Check if network connection is established automatically after reboot.
+
+```
+$ ping google.de
+```
+
+
+### Standard config
+
+Update the system.
+
+```
+$ sudo apt-get update
+$ sudo apt-get dist-upgrade
+$ sudo reboot
+```
+
+Raspi-Config
+
+```
+$ sudo raspi-config
+```
+
+Things you should do in the config dialog:
+- 8 Update
+- 1 Change user password
+- 2 Network Options > N1 Hostname _(give your pi a name)_
+
+
+update raspi-config
+[extend file system → reboot] // newer versions: automatically done on first boot
+locale
+keyboard
+timezone
+wifi-country
+boot options
+ssh
+password
+[hostname, MemorySplit, overclock]
+
+
+
+
+
+
+
 
 TODO: installation / first steps on raspbian (raspberry-config, apt-get dist-upgrade, ...)
 
