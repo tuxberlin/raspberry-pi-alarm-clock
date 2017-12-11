@@ -7,9 +7,7 @@ This guide assumes, that you operate from a Linux (Debian) machine.
 On your computer, download the latest raspian release from https://www.raspberrypi.org/downloads/raspbian/ (~2GB, takes 10-40min).
 
 ```
-$ cd ~
-$ mkdir pi-alarm
-$ cd pi-alarm
+$ cd /tmp
 $ wget https://downloads.raspberrypi.org/raspbian/images/raspbian-2017-12-01/2017-11-29-raspbian-stretch.zip
 $ wget https://downloads.raspberrypi.org/raspbian/images/raspbian-2017-12-01/2017-11-29-raspbian-stretch.zip.sha256
 $ sha256sum -c 2017-11-29-raspbian-stretch.zip.sha256
