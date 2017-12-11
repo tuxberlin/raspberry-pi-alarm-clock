@@ -1,4 +1,4 @@
-# Raspberry Pi Installation
+# Raspberry Pi Basic Installation
 
 This guide assumes, that you operate from a Linux (Debian) machine.
 
