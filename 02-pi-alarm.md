@@ -3,7 +3,7 @@
 ## Setup LCD
 
 As an example we will use a
-[Waveshare 3.2inch RPi LCD (B)](https://www.waveshare.com/product/3.2inch-rpi-lcd-b.htm) (320×240px)
+[Waveshare 3.2inch RPi LCD (B)](https://www.waveshare.com/product/3.2inch-rpi-lcd-b.htm) (320×240px / XPT2046 / ads7846)
 which will fit perfectly on a Raspberry Pi 1 Model B (or B+).
 More information:
 [Manual](https://www.waveshare.com/w/upload/3/3e/RPi-LCD-User-Manual.pdf),
@@ -45,10 +45,7 @@ rpi$ cp /usr/share/X11/xorg.conf.d/99-calibration.conf ./lcd-calibration-old.cfg
 rpi$ sudo cp ./lcd-calibration-new.cfg /usr/share/X11/xorg.conf.d/99-calibration.conf
 ```
 
-
-
-
-
-TODO: disable auto shutdown of display
-
-TODO: adjust brightness
+Disable screen auto power off.
+```
+rpi$ sudo sed -i 's/#\(xserver-command=X\)/\1 -s 0 -dpms/' /etc/lightdm/lightdm.conf
+```

@@ -166,6 +166,8 @@ Install vim.
 $ sudo apt-get install vim
 $ echo "set mouse-=a" >> ~/.vimrc
 $ echo "syntax on" >> ~/.vimrc
+$ echo "set mouse-=a" | sudo tee -a /root/.vimrc
+$ echo "syntax on" | sudo tee -a /root/.vimrc
 ```
 
 
