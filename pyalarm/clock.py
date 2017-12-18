@@ -1,163 +1,90 @@
-import Tkinter as tk
-import time
+from datetime import datetime
 from pygame import mixer
-
-# bird sound from http://www.freesound.org/people/klankbeeld/
-
-
-class ClockApp:
-    def __init__(self, song):
-        self.is_fullscreen = True
-        self.background_color = 'black'
-        self.text_color = 'green'
-        self.time_format = '%H:%M:%S'
-        self.blink_color_a = [30, 30, 30]
-        self.blink_color_b = [242, 216, 65]
-
-        self.song = song
-
-        self.root = tk.Tk()
-        self.blink_frame = tk.Frame()
-        self.time_label = tk.Label()
-
-        self._build()
-
-    def _build(self):
-        self.root.configure(background=self.background_color, cursor='none')
-
-        self.root.bind("<F10>", self.wakeup)
-        self.root.bind("<F11>", self._toggle_fullscreen)
-        self.root.bind("<Escape>", lambda e: self.root.quit())
-
-        self._build_time_label()
-
-        self._toggle_fullscreen(None)
-
-    def _build_time_label(self):
-        self.time_label.destroy()
-        self.time_label = TimeLabel(self.root, self.background_color, self.text_color, self.time_format)
-
-    def _build_blink_frame(self):
-        self.blink_frame.destroy()
-        self.blink_frame = BlinkFrame(self.root, self.blink_color_a, self.blink_color_b)
-
-    def _toggle_fullscreen(self, event):
-        self.root.attributes("-fullscreen", self.is_fullscreen)
-        self.is_fullscreen = not self.is_fullscreen
-
-    def wakeup(self, event):
-        self.time_label.destroy()
-
-        self.song.start(99000)
-
-        self.root.bind('<Button-1>', self.snooze)
-
-        self.root.after(10000, self._build_blink_frame)
-
-    def snooze(self, event):
-        self.blink_frame.destroy()
-        self._build_time_label()
-        self.song.stop()
-
-    def run(self):
-        self.root.mainloop()
+from threading import Timer
 
 
 # -------------------------------------------------------------------
 
 
-class TimeLabel(tk.Label):
-    def __init__(self, root, bg, fg, time_format):
-        tk.Label.__init__(
-            self,
-            root,
-            text='clock',
-            font=('Comic Sans MS', 50),
-            background=bg,
-            foreground=fg
-        )
-
-        self.pack(expand=True, anchor='c')
-
-        self.time_format = time_format
-
-        self.ticking = True
-        self._tick()
+class Clock(object):
+    def __init__(self, alarms):
+        self.alarms = alarms
+        self._ticking = False
 
     def _tick(self):
-        if not self.ticking:
+        if not self._ticking:
             return
 
-        now = time.strftime(self.time_format)
-        self.configure(text=now)
+        now = datetime.now().replace(year=1900, month=1, day=1, microsecond=0)
 
-        self.after(1000, self._tick)
+        for alarm in self.alarms:
+            diff = abs((alarm.time - now).total_seconds())
+
+            if diff <= 1:
+                alarm.start()
+
+        Timer(1, self._tick).start()
+
+    def start(self):
+        self._ticking = True
+        self._tick()
+
+    def stop(self):
+        self._ticking = False
+
+        for alarm in self.alarms:
+            alarm.stop()
 
 
 # -------------------------------------------------------------------
 
 
-class BlinkFrame(tk.Frame):
-    def __init__(self, root, color_a, color_b):
-        tk.Frame.__init__(
-            self,
-            root
-        )
-        self.configure(background='red')
-        self.pack(expand=True, anchor='c', fill='both')
+class Alarm(object):
+    def __init__(self, alarm_time, alarm_callback=None, alarm_song=None, time_format='%H:%M'):
+        self.alarm_time = alarm_time
+        self.alarm_callback = alarm_callback
+        self.alarm_song = alarm_song
 
-        self.color_a = color_a
-        self.color_b = color_b
+        self.time = datetime.strptime(alarm_time, time_format)
+        self._enabled = True
+        self._ringing = False
 
-        self._blinking = True
-        self._blink()
-
-    def _blink(self, state=None, step=1):
-        if not self._blinking:
+    def start(self):
+        if self._ringing or not self._enabled:
             return
 
-        if state is None:
-            state = self.color_a
+        self._ringing = True
 
-        # advance color but within limits
-        state = map(lambda x, a, b: x+step if a <= x+step <= b else x, state, self.color_a, self.color_b)
+        if self.alarm_song:
+            self.alarm_song.start()
 
-        # change direction if limit reached
-        if state == self.color_a:
-            step = 1
-        elif state == self.color_b:
-            step = -1
+        if self.alarm_callback:
+            self.alarm_callback()
 
-        hexcolor = '#' + ('{:02x}'*3).format(*state)
+    def stop(self):
+        self._ringing = False
 
-        self.configure(background=hexcolor)
-
-        self.after(50, self._blink, state, step)
+        if self.alarm_song:
+            self.alarm_song.stop()
 
 
 # -------------------------------------------------------------------
 
 
-class WakeupSong:
-    def __init__(self, filepath):
-        self.filepath = filepath
+class Song(object):
+    def __init__(self, filepath, fadein=0, volume=1.0):
+        self.fadein = fadein
+        self.volume = volume
+
         mixer.init()
-        self.sound = mixer.Sound(self.filepath)
+        self.sound = mixer.Sound(filepath)
 
-    def start(self, fadein=0):
-        mixer.init(frequency=22050, size=-16, channels=2, buffer=4096)
-
-        self.sound.set_volume(1.0)
-
-        self.sound.play(-1, fade_ms=fadein)
+    def start(self):
+        self.sound.set_volume(self.volume)
+        self.sound.play(-1, fade_ms=self.fadein)
 
     def stop(self):
         self.sound.stop()
 
 
 # -------------------------------------------------------------------
-# -------------------------------------------------------------------
-
-
-if __name__ == '__main__':
-    ClockApp(WakeupSong('bird.ogg')).run()
