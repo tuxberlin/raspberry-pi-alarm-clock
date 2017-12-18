@@ -1,15 +1,20 @@
 import Tkinter as tk
 import time
+from pygame import mixer
+
+# bird sound from http://www.freesound.org/people/klankbeeld/
 
 
 class ClockApp:
-    def __init__(self):
+    def __init__(self, song):
         self.is_fullscreen = True
         self.background_color = 'black'
         self.text_color = 'green'
         self.time_format = '%H:%M:%S'
         self.blink_color_a = [30, 30, 30]
         self.blink_color_b = [242, 216, 65]
+
+        self.song = song
 
         self.root = tk.Tk()
         self.blink_frame = tk.Frame()
@@ -45,11 +50,14 @@ class ClockApp:
 
         self._build_blink_frame()
 
+        self.song.start()
+
         self.root.bind('<Button-1>', self.snooze)
 
     def snooze(self, event):
         self.blink_frame.destroy()
         self._build_time_label()
+        self.song.stop()
 
     def run(self):
         self.root.mainloop()
@@ -64,7 +72,7 @@ class TimeLabel(tk.Label):
             self,
             root,
             text='clock',
-            font=('Comic Sans MS', 150),
+            font=('Comic Sans MS', 50),
             background=bg,
             foreground=fg
         )
@@ -124,7 +132,23 @@ class BlinkFrame(tk.Frame):
 
         self.configure(background=hexcolor)
 
-        self.after(30, self._blink, state, step)
+        self.after(50, self._blink, state, step)
+
+
+# -------------------------------------------------------------------
+
+
+class WakeupSong:
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def start(self):
+        mixer.init()
+        mixer.music.load(self.filepath)
+        mixer.music.play()
+
+    def stop(self):
+        mixer.music.stop()
 
 
 # -------------------------------------------------------------------
@@ -132,4 +156,4 @@ class BlinkFrame(tk.Frame):
 
 
 if __name__ == '__main__':
-    ClockApp().run()
+    ClockApp(WakeupSong('bird.mp3')).run()
