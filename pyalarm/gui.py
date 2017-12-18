@@ -1,17 +1,18 @@
+
+# -*- coding: utf-8 -*-
+
 import Tkinter as tk
 import time
 
 
 class ClockGui(object):
-    def __init__(self, song):
-        self.is_fullscreen = True
+    def __init__(self, fullscreen=True):
+        self.is_fullscreen = fullscreen
         self.background_color = 'black'
         self.text_color = 'green'
         self.time_format = '%H:%M:%S'
         self.blink_color_a = [30, 30, 30]
         self.blink_color_b = [242, 216, 65]
-
-        self.song = song
 
         self.root = tk.Tk()
         self.blink_frame = tk.Frame()
@@ -20,15 +21,15 @@ class ClockGui(object):
         self._build()
 
     def _build(self):
+        self.root.title('Clock')
         self.root.configure(background=self.background_color, cursor='none')
 
-        self.root.bind("<F10>", self.wakeup)
         self.root.bind("<F11>", self._toggle_fullscreen)
-        self.root.bind("<Escape>", lambda e: self.root.quit())
+        self.root.bind("<Escape>", self.close)
 
         self._build_time_label()
 
-        self._toggle_fullscreen(None)
+        self._toggle_fullscreen()
 
     def _build_time_label(self):
         self.time_label.destroy()
@@ -38,26 +39,36 @@ class ClockGui(object):
         self.blink_frame.destroy()
         self.blink_frame = BlinkFrame(self.root, self.blink_color_a, self.blink_color_b)
 
-    def _toggle_fullscreen(self, event):
+    def _toggle_fullscreen(self, event=None):
         self.root.attributes("-fullscreen", self.is_fullscreen)
         self.is_fullscreen = not self.is_fullscreen
 
-    def wakeup(self, event):
+    def alarmflash(self, event=None, stop_callback=None):
+        print 'ClockGui.alarmflash():', stop_callback
+
         self.time_label.destroy()
 
-        self.song.start(99000)
-
-        self.root.bind('<Button-1>', self.snooze)
+        self.root.bind('<Button-1>', self.snooze, stop_callback)
 
         self.root.after(10000, self._build_blink_frame)
 
-    def snooze(self, event):
+    def snooze(self, event=None, stop_callback=None):
+        print 'ClockGui.snooze1() event:', event
+        print 'ClockGui.snooze1():', stop_callback
+
         self.blink_frame.destroy()
         self._build_time_label()
-        self.song.stop()
+
+        if stop_callback:
+            print 'snooze2():', stop_callback
+            stop_callback.run()
 
     def run(self):
         self.root.mainloop()
+
+    def close(self, event=None):
+        self.root.destroy()
+        self.root.quit()
 
 
 # -------------------------------------------------------------------
