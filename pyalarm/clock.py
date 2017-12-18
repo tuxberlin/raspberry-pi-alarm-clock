@@ -48,11 +48,11 @@ class ClockApp:
     def wakeup(self, event):
         self.time_label.destroy()
 
-        self._build_blink_frame()
-
-        self.song.start()
+        self.song.start(99000)
 
         self.root.bind('<Button-1>', self.snooze)
+
+        self.root.after(10000, self._build_blink_frame)
 
     def snooze(self, event):
         self.blink_frame.destroy()
@@ -141,14 +141,18 @@ class BlinkFrame(tk.Frame):
 class WakeupSong:
     def __init__(self, filepath):
         self.filepath = filepath
-
-    def start(self):
         mixer.init()
-        mixer.music.load(self.filepath)
-        mixer.music.play()
+        self.sound = mixer.Sound(self.filepath)
+
+    def start(self, fadein=0):
+        mixer.init(frequency=22050, size=-16, channels=2, buffer=4096)
+
+        self.sound.set_volume(1.0)
+
+        self.sound.play(-1, fade_ms=fadein)
 
     def stop(self):
-        mixer.music.stop()
+        self.sound.stop()
 
 
 # -------------------------------------------------------------------
@@ -156,4 +160,4 @@ class WakeupSong:
 
 
 if __name__ == '__main__':
-    ClockApp(WakeupSong('bird.mp3')).run()
+    ClockApp(WakeupSong('bird.ogg')).run()
