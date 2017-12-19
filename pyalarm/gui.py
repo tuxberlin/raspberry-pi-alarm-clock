@@ -37,6 +37,7 @@ class ClockGui(object):
 
     def _build_blink_frame(self):
         self.blink_frame.destroy()
+        self.blink_frame.pack_forget()
         self.blink_frame = BlinkFrame(self.root, self.blink_color_a, self.blink_color_b)
 
     def _toggle_fullscreen(self, event=None):
