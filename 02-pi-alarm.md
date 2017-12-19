@@ -49,3 +49,12 @@ Disable screen auto power off.
 ```
 rpi$ sudo sed -i 's/#\(xserver-command=X\)/\1 -s 0 -dpms/' /etc/lightdm/lightdm.conf
 ```
+
+Run overclock settings again (might be overwritten).
+
+```
+$ sudo raspi-config
+```
+
+- 6 Overclock _(Select Turbo 1000MHz)_
+- &lt;Finish> the dialog and reboot the Pi.
