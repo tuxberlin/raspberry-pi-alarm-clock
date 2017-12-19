@@ -43,24 +43,21 @@ class ClockGui(object):
         self.root.attributes("-fullscreen", self.is_fullscreen)
         self.is_fullscreen = not self.is_fullscreen
 
-    def alarmflash(self, event=None, stop_callback=None):
-        print 'ClockGui.alarmflash():', stop_callback
-
+    def start_flashing(self, event=None, stop_callback=None):
         self.time_label.destroy()
 
-        self.root.bind('<Button-1>', lambda e, cb=stop_callback: self.snooze(e, cb))
+        self.root.bind('<Button-1>', lambda e, cb=stop_callback: self.stop_flashing(e, cb), add='+')
 
-        self.root.after(10000, self._build_blink_frame)
+        #self.root.after(10000, self._build_blink_frame)
+        self._build_blink_frame()
 
-    def snooze(self, event=None, stop_callback=None):
-        print 'ClockGui.snooze1() event:', event
-        print 'ClockGui.snooze1():', stop_callback
-
+    def stop_flashing(self, event=None, stop_callback=None):
         self.blink_frame.destroy()
         self._build_time_label()
 
+        self.root.unbind('<Button-1>')
+
         if stop_callback:
-            print 'snooze2():', stop_callback
             stop_callback.run()
 
     def run(self):
@@ -117,13 +114,9 @@ class BlinkFrame(tk.Frame):
         self.color_a = color_a
         self.color_b = color_b
 
-        self._blinking = True
         self._blink()
 
     def _blink(self, state=None, step=1):
-        if not self._blinking:
-            return
-
         if state is None:
             state = self.color_a
 

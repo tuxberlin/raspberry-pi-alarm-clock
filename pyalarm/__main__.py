@@ -21,14 +21,17 @@ def run():
     now = datetime.now()
     now += timedelta(minutes=1)
     nowstr = now.strftime('%H:%M')
+    nowstr2 = (now + timedelta(minutes=1)).strftime('%H:%M')
     print nowstr
+    print nowstr2
 
     a1 = Alarm(alarm_time=nowstr, alarm_song=Song(path + '/bird.ogg'))
-    a1.alarm_callback = Callback(g.alarmflash, [None, Callback(a1.stop)])
-    print 'main.run():', a1, a1.stop
-    print 'main.a1.cb:', a1.alarm_callback
+    a1.alarm_callback = Callback(g.start_flashing, {'stop_callback': Callback(a1.stop)})
 
-    a2 = Alarm('07:15', Callback(test))
+    a2 = Alarm(alarm_time=nowstr2, alarm_song=Song(path + '/beep.ogg'))
+    a2.alarm_callback = Callback(g.start_flashing, {'stop_callback': Callback(a2.stop)})
+
+    a3 = Alarm(nowstr2, Callback(test))
 
     c = Clock([a1, a2])
     c.start()
