@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from .clock import Clock, Alarm, Song
+from .clock import Clock, Alarm, Song, SilenceSoundPing
 from .gui import ClockGui
 from .callback import Callback
 
@@ -29,10 +29,13 @@ def run():
     c = Clock([a1])
     c.start()
 
+    sp = SilenceSoundPing(path + '/silence.ogg', 4*60)
+
     # run gui, waits until gui is quited
     g.run()
 
     c.stop()
+    sp.destroy()
 
 
 if __name__ == '__main__':
