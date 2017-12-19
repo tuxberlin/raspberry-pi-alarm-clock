@@ -48,7 +48,7 @@ class ClockGui(object):
 
         self.time_label.destroy()
 
-        self.root.bind('<Button-1>', self.snooze, stop_callback)
+        self.root.bind('<Button-1>', lambda e, cb=stop_callback: self.snooze(e, cb))
 
         self.root.after(10000, self._build_blink_frame)
 
