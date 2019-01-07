@@ -10,7 +10,7 @@ class ClockGui(object):
         self.is_fullscreen = fullscreen
         self.background_color = 'black'
         self.text_color = 'green'
-        self.time_format = '%H:%M:%S'
+        self.time_format = '%H:%M'
         self.blink_color_a = [30, 30, 30]
         self.blink_color_b = [242, 216, 65]
 
@@ -78,7 +78,7 @@ class TimeLabel(tk.Label):
             self,
             root,
             text='clock',
-            font=('Comic Sans MS', 50),
+            font=('Comic Sans MS', 60),
             background=bg,
             foreground=fg
         )
